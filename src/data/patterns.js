@@ -62,6 +62,39 @@ export const CONTENT_PATTERNS = [
     ]
   },
   {
+    id: 'tech-support',
+    category: 'tech-support',
+    weight: 32,
+    title: 'Fake virus / tech-support alert',
+    detail: 'Pop-ups and calls claiming your device is infected and telling you to call a number are fake. Microsoft, Apple, and antivirus companies never cold-call you or put a phone number in a virus warning.',
+    re: [
+      /\b((your (computer|pc|device|iphone|mac|system) (is|has been|may be) (infected|hacked|compromised|blocked|at risk))|virus (detected|found|alert)|malware detected|(microsoft|apple|windows|norton|mcafee) (support|security|technician).{0,40}(call|contact|dial)|call (this )?(toll[- ]?free )?number.{0,30}(support|technician|microsoft|apple|remove|virus)|do not (restart|turn off|shut down) your (computer|pc|device))\b/i
+    ]
+  },
+  {
+    id: 'emergency',
+    category: 'emergency',
+    weight: 22,
+    title: 'Family-emergency money request',
+    detail: 'The "grandparent scam" impersonates a relative in sudden trouble (accident, arrest, hospital) needing money urgently and secretly. Verify by calling the real person on a number you already have before doing anything.',
+    re: [
+      /\b(it'?s me|it is me|this is your)\b.{0,20}\b(grand)?(son|daughter|child|mom|dad|nephew|niece)\b/i,
+      /\b(i'?m|i am|i'?ve been|i have been) (in (an? )?(accident|jail|hospital|trouble)|arrested|stranded|kidnapped|detained)\b/i,
+      /\bneed (money|bail|cash|help) (right )?(now|urgently|immediately|asap|today)\b/i,
+      /\b(mom|dad|grandma|grandpa|mum),? i (need|lost)\b.{0,40}(money|phone|help)/i
+    ]
+  },
+  {
+    id: 'quishing',
+    category: 'quishing',
+    weight: 16,
+    title: 'Asks you to scan a QR code',
+    detail: 'Scan a QR code from an unexpected message, email, parking meter sticker, or letter and it can send you straight to a phishing site or authorize a payment. Type addresses yourself instead of scanning codes from strangers.',
+    re: [
+      /\b(scan (the |this |below )?qr( ?code)?|qr ?code (to|below|attached|and)|scan (the |this )?code (to|below|and) (pay|verify|log ?in|claim|confirm|receive))\b/i
+    ]
+  },
+  {
     id: 'remote-access',
     category: 'remote-access',
     weight: 26,
@@ -141,7 +174,7 @@ export const CONTENT_PATTERNS = [
     title: 'Tells you to keep it secret',
     detail: 'Scammers isolate victims. Anyone who says "do not tell your family or your bank" is hiding from the people who would recognize the fraud instantly.',
     re: [
-      /\b(do n?o?'?t (tell|share|inform|disclose|mention)( this)?( to)? (anyone|anybody|family|your (family|wife|husband|son|daughter|children|bank))|keep (this|it) (confidential|secret|private|between us)|must not (tell|inform))\b/i
+      /\b(do n?o?'?t (tell|share|inform|disclose|mention)( this)?( to)? (anyone|anybody|family|mom|dad|mum|parents|your (family|wife|husband|son|daughter|children|parents|mom|dad|bank))|keep (this|it) (confidential|secret|private|between us)|must not (tell|inform))\b/i
     ]
   },
   {
@@ -244,6 +277,9 @@ export const ADVICE = {
   urgency: 'Slow down. Urgency is manufactured to stop you from thinking. Take ten minutes and ask someone you trust.',
   channel: 'Be wary of any business that operates only over WhatsApp or Telegram or pushes you to call unknown numbers.',
   'advance-fee': 'Never send money to receive money, a parcel, or a prize. The "fee" is the scam.',
+  'tech-support': 'Close the pop-up / hang up. Never call a number in a virus warning or let anyone remotely access your device. Real tech companies never cold-call you about infections.',
+  'emergency': 'Stop and verify. Call the relative directly on the number you already have, or check with another family member, before sending any money — even if the caller sounds panicked and says not to.',
+  'quishing': 'Do not scan QR codes from unexpected messages, emails, or stickers. Type the official web address yourself instead.',
   'toll-fine': 'Do not click the link or pay. Check unpaid tolls only through the official toll agency\'s app or website, typed in yourself — never a link from a text.',
   'payment-redirect': 'Never change payment or bank details based on an email or message alone. Call the person or company using a phone number you already had on file — not one from this message — to confirm before sending any payment.',
   url: 'Check the address carefully: the real domain is what comes just before the last dot (e.g. "paypal.com", not "paypal.com.verify-login.xyz").'

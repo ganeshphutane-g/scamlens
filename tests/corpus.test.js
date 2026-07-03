@@ -27,7 +27,10 @@ const SCAMS = [
   ['SIM-swap social engineering', 'This is Alex from T-Mobile fraud prevention. We detected an attempt to port your number to a new carrier. To block this and keep your number safe, please read us the verification code that was just sent to your phone.'],
   ['fake job interview on Telegram', 'Congratulations, you have been shortlisted for the Data Entry Assistant remote position, salary $35/hour. Please proceed to our Telegram channel @hr-recruiting-2026 to complete your interview and receive your starter kit.'],
   ['trailing-dot URL evasion', 'Security alert: verify your account now at https://amaz0n-security.com./reset to avoid suspension'],
-  ['IPv6 bare-IP link', 'Login here to verify your account and avoid suspension: http://[2001:db8::1]/bank-login within 24 hours']
+  ['IPv6 bare-IP link', 'Login here to verify your account and avoid suspension: http://[2001:db8::1]/bank-login within 24 hours'],
+  ['tech-support popup', 'WARNING: Your computer is infected with a virus and has been blocked. Do not restart your computer. Call Microsoft support technician immediately at this toll-free number to remove the threat.'],
+  ['grandparent emergency scam', 'Grandma, it is me your grandson. I have been in an accident and arrested. I need bail money right now urgently, please do not tell mom or dad, it is an emergency.'],
+  ['quishing QR scam', 'Your parcel could not be delivered due to an address issue. Scan the QR code below to verify your details and pay the redelivery fee to receive your package.']
 ];
 
 const LEGIT = [
