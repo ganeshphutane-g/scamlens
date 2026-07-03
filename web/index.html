@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScamLens — check any message or link for scams, offline</title>
+<meta name="description" content="Paste a suspicious message, email, or link and get an instant, plain-language scam risk report. 100% offline — nothing you paste ever leaves your device.">
+<style>
+  :root {
+    --bg: #0b0f14; --panel: #131a22; --panel-2: #1a2330; --border: #253244;
+    --text: #e6edf3; --muted: #8b98a5; --accent: #4f9dff;
+    --low: #3fb950; --medium: #d29922; --high: #f0883e; --critical: #f85149;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  header { padding: 2.5rem 1.5rem 1rem; text-align: center; }
+  header h1 { margin: 0 0 .35rem; font-size: 1.9rem; letter-spacing: -.02em; }
+  header h1 span { color: var(--accent); }
+  header p { margin: 0; color: var(--muted); max-width: 42em; margin-inline: auto; }
+  main { max-width: 46rem; margin: 0 auto; padding: 1.5rem; }
+  .privacy-note {
+    display: flex; gap: .5rem; align-items: center; justify-content: center;
+    font-size: .85rem; color: var(--low); margin-top: .75rem;
+  }
+  textarea {
+    width: 100%; min-height: 9rem; resize: vertical; padding: .9rem 1rem;
+    background: var(--panel); color: var(--text); border: 1px solid var(--border);
+    border-radius: .6rem; font: inherit; font-size: .98rem;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: .75rem; margin-top: .85rem; flex-wrap: wrap; align-items: center; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: .5rem;
+    padding: .7rem 1.3rem; min-height: 2.75rem; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  button:hover { filter: brightness(1.1); }
+  .examples { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin-left: auto; }
+  .examples button {
+    background: none; color: var(--accent); border: none; padding: .6rem .7rem;
+    min-height: 2.75rem; font-size: .85rem; font-weight: 500; text-decoration: underline; cursor: pointer;
+  }
+  #report { margin-top: 1.75rem; display: none; }
+  .badge {
+    display: inline-flex; align-items: center; gap: .5rem; padding: .6rem 1.1rem;
+    border-radius: 2rem; font-weight: 700; font-size: 1.05rem;
+  }
+  .badge.low { background: color-mix(in srgb, var(--low) 18%, transparent); color: var(--low); }
+  .badge.medium { background: color-mix(in srgb, var(--medium) 18%, transparent); color: var(--medium); }
+  .badge.high { background: color-mix(in srgb, var(--high) 18%, transparent); color: var(--high); }
+  .badge.critical { background: color-mix(in srgb, var(--critical) 22%, transparent); color: var(--critical); }
+  .meter {
+    height: .5rem; border-radius: .3rem; background: var(--panel-2); overflow: hidden;
+    margin-top: .8rem;
+  }
+  .meter > div { height: 100%; transition: width .4s ease; }
+  .meter.low > div { background: var(--low); } .meter.medium > div { background: var(--medium); }
+  .meter.high > div { background: var(--high); } .meter.critical > div { background: var(--critical); }
+  .summary { margin-top: .9rem; color: var(--text); }
+  .section-title { margin: 1.75rem 0 .6rem; font-size: .95rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .signal {
+    background: var(--panel); border: 1px solid var(--border); border-radius: .6rem;
+    padding: .85rem 1rem; margin-bottom: .6rem;
+  }
+  .signal h3 { margin: 0 0 .3rem; font-size: 1rem; display: flex; gap: .5rem; align-items: baseline; }
+  .signal h3 .flag { color: var(--high); }
+  .signal p { margin: 0; color: var(--muted); font-size: .92rem; }
+  .signal .evidence {
+    margin-top: .5rem; font-size: .85rem; color: var(--text); background: var(--panel-2);
+    padding: .4rem .6rem; border-radius: .35rem; font-family: ui-monospace, monospace;
+  }
+  .advice { background: var(--panel); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.1rem; }
+  .advice li { margin-bottom: .5rem; }
+  .advice li:last-child { margin-bottom: 0; }
+  .empty { color: var(--muted); text-align: center; padding: 1rem; }
+  .language-note { margin-top: .6rem; font-size: .8rem; color: var(--muted); text-align: center; }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 2.5rem 1.5rem 3rem; }
+  footer a { color: var(--accent); }
+  noscript { display: block; text-align: center; padding: 3rem; color: var(--high); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Scam<span>Lens</span></h1>
+  <p>Paste any suspicious message, email, or link below. Get an instant, plain-language risk report and know exactly what to do next.</p>
+  <div class="privacy-note">🔒 Runs entirely in your browser — nothing you paste is ever sent anywhere.</div>
+</header>
+<main>
+  <noscript>ScamLens needs JavaScript enabled to analyze text locally in your browser.</noscript>
+  <label for="input" style="position:absolute; left:-9999px;">Message or link to check</label>
+  <textarea id="input" placeholder="Paste the message, email, or link here…"></textarea>
+  <div class="row">
+    <button id="analyzeBtn" type="button">Check for scams</button>
+    <button id="clearBtn" type="button" class="secondary">Clear</button>
+    <span class="examples">Try: <button data-ex="0">bank OTP</button><button data-ex="1">digital arrest</button><button data-ex="2">job offer</button></span>
+  </div>
+  <p class="language-note">Detection currently works best for English-language messages. A low score is not a guarantee — especially for text in other languages.</p>
+
+  <div id="report" role="status" aria-live="polite">
+    <span id="badge" class="badge"></span>
+    <div id="meter" class="meter"><div id="meterFill" style="width:0%"></div></div>
+    <p id="summary" class="summary"></p>
+
+    <div id="signalsWrap">
+      <div class="section-title">Red flags found</div>
+      <div id="signals"></div>
+    </div>
+
+    <div id="adviceWrap">
+      <div class="section-title">What to do</div>
+      <ul class="advice" id="advice"></ul>
+    </div>
+  </div>
+</main>
+<footer>
+  ScamLens is free, open-source, and 100% offline — no server, no tracking, no account.
+  <br><a href="https://github.com/ganeshphutane-g/scamlens">View source on GitHub</a> · MIT License
+</footer>
+
+<script type="module">
+  import { analyze } from '../src/engine.js';
+
+  const input = document.getElementById('input');
+  const report = document.getElementById('report');
+  const badge = document.getElementById('badge');
+  const meter = document.getElementById('meter');
+  const meterFill = document.getElementById('meterFill');
+  const summary = document.getElementById('summary');
+  const signalsWrap = document.getElementById('signalsWrap');
+  const signalsEl = document.getElementById('signals');
+  const adviceWrap = document.getElementById('adviceWrap');
+  const adviceEl = document.getElementById('advice');
+
+  const EXAMPLES = [
+    'Dear customer your SBI account will be blocked within 24 hours. Please verify your KYC immediately. Share your OTP and click http://sbi-kyc-update.xyz/verify',
+    'This is CBI officer. Your Aadhaar is linked to a money laundering case. You are under digital arrest. Do not tell anyone or your family. Pay fine of Rs 50,000 immediately to avoid arrest warrant.',
+    'Part-time job offer! Earn Rs 5000 per day from home doing simple tasks. Just like and subscribe YouTube videos and get paid. Join our telegram channel to start. Small refundable registration fee required.'
+  ];
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function render(r) {
+    report.style.display = 'block';
+    badge.className = `badge ${r.level}`;
+    badge.textContent = `${r.level.toUpperCase()} RISK — ${r.score}/100`;
+    meter.className = `meter ${r.level}`;
+    meterFill.style.width = `${r.score}%`;
+    summary.textContent = r.summary;
+
+    if (r.signals.length === 0) {
+      signalsWrap.style.display = 'none';
+    } else {
+      signalsWrap.style.display = 'block';
+      signalsEl.innerHTML = r.signals.map(s => `
+        <div class="signal">
+          <h3><span class="flag">⚑</span> ${escapeHtml(s.title)}</h3>
+          <p>${escapeHtml(s.detail)}</p>
+          ${s.evidence ? `<div class="evidence">matched: "${escapeHtml(s.evidence)}"</div>` : ''}
+        </div>`).join('');
+    }
+
+    if (r.advice.length === 0) {
+      adviceWrap.style.display = 'none';
+    } else {
+      adviceWrap.style.display = 'block';
+      adviceEl.innerHTML = r.advice.map(a => `<li>${escapeHtml(a)}</li>`).join('');
+    }
+  }
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function run() {
+    const text = input.value;
+    if (!text.trim()) { report.style.display = 'none'; return; }
+    render(analyze(text));
+    report.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  document.getElementById('analyzeBtn').addEventListener('click', run);
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    input.value = '';
+    report.style.display = 'none';
+    input.focus();
+  });
+  input.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') run();
+  });
+  document.querySelectorAll('.examples button[data-ex]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      input.value = EXAMPLES[+btn.dataset.ex];
+      run();
+    });
+  });
+</script>
+</body>
+</html>
