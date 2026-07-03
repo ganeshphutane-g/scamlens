@@ -30,7 +30,9 @@ const SCAMS = [
   ['IPv6 bare-IP link', 'Login here to verify your account and avoid suspension: http://[2001:db8::1]/bank-login within 24 hours'],
   ['tech-support popup', 'WARNING: Your computer is infected with a virus and has been blocked. Do not restart your computer. Call Microsoft support technician immediately at this toll-free number to remove the threat.'],
   ['grandparent emergency scam', 'Grandma, it is me your grandson. I have been in an accident and arrested. I need bail money right now urgently, please do not tell mom or dad, it is an emergency.'],
-  ['quishing QR scam', 'Your parcel could not be delivered due to an address issue. Scan the QR code below to verify your details and pay the redelivery fee to receive your package.']
+  ['quishing QR scam', 'Your parcel could not be delivered due to an address issue. Scan the QR code below to verify your details and pay the redelivery fee to receive your package.'],
+  ['subscription-refund scam', 'Your Geek Squad subscription has been renewed for $499.99. If you did not authorize this, call our billing department immediately at 1-888-555-0142 to cancel and get a refund.'],
+  ['crypto-recovery scam', 'Have you lost money to a crypto scam? Our recovery team can get your funds back. Just pay a small upfront recovery fee and send your wallet details to start.']
 ];
 
 const LEGIT = [
@@ -46,7 +48,12 @@ const LEGIT = [
   ['invoice', 'Hi, please find attached the invoice for June services, due on the 15th as usual. Thanks!'],
   ['self-directed IT password reminder', 'IT Notice: Your corporate password expires in 3 days. Please update your password via the company portal before it expires to avoid account lockout.'],
   ['school portal password reminder', 'Reminder: Please update your password for the Parent Portal before it expires on Friday to keep receiving grade notifications.'],
-  ['borderline: link + deadline + WhatsApp support (no single strong signal)', 'Please click the link below to verify your subscription before it expires today, or whatsapp us at this number for help.']
+  ['borderline: link + deadline + WhatsApp support (no single strong signal)', 'Please click the link below to verify your subscription before it expires today, or whatsapp us at this number for help.'],
+  ['legit restaurant menu QR', 'Welcome! Scan the QR code on your table to view our menu and order. Enjoy your meal!'],
+  ['legit event check-in QR', 'Your ticket is confirmed. Scan the QR code at the entrance to check in. See you at the show!'],
+  ['legit surprise-party secrecy', 'Do not tell mom about the surprise party we are planning for her birthday next week!'],
+  ['legit family hospital text', 'Hi mom, it is me. I am at the hospital with grandma, everything is ok, just call me when you can.'],
+  ['legit antivirus renewal notice', 'Your Norton 360 subscription renews on July 10. Your protection keeps your devices safe from viruses. Manage your plan anytime in your account.']
 ];
 
 for (const [name, text] of SCAMS) {

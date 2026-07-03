@@ -80,18 +80,23 @@ export const CONTENT_PATTERNS = [
     re: [
       /\b(it'?s me|it is me|this is your)\b.{0,20}\b(grand)?(son|daughter|child|mom|dad|nephew|niece)\b/i,
       /\b(i'?m|i am|i'?ve been|i have been) (in (an? )?(accident|jail|hospital|trouble)|arrested|stranded|kidnapped|detained)\b/i,
-      /\bneed (money|bail|cash|help) (right )?(now|urgently|immediately|asap|today)\b/i,
-      /\b(mom|dad|grandma|grandpa|mum),? i (need|lost)\b.{0,40}(money|phone|help)/i
+      // Money-specific only — "need help right now" is everyday phrasing and
+      // must not fire this on its own.
+      /\bneed (money|bail|cash) (right )?(now|urgently|immediately|asap|today)\b/i,
+      /\b(mom|dad|grandma|grandpa|mum),? i (need|lost)\b.{0,40}(money|phone)/i
     ]
   },
   {
     id: 'quishing',
     category: 'quishing',
     weight: 16,
-    title: 'Asks you to scan a QR code',
-    detail: 'Scan a QR code from an unexpected message, email, parking meter sticker, or letter and it can send you straight to a phishing site or authorize a payment. Type addresses yourself instead of scanning codes from strangers.',
+    title: 'Asks you to scan a QR code to pay or log in',
+    detail: 'A QR code in an unexpected message, email, sticker, or letter can send you straight to a phishing site or authorize a payment. Type the address yourself instead of scanning codes from strangers.',
     re: [
-      /\b(scan (the |this |below )?qr( ?code)?|qr ?code (to|below|attached|and)|scan (the |this )?code (to|below|and) (pay|verify|log ?in|claim|confirm|receive))\b/i
+      // Only fire when the QR is tied to a payment/login/account action —
+      // NOT benign uses like a restaurant menu or event check-in QR.
+      /\bqr ?code\b.{0,45}\b(pay|verif|log ?in|sign ?in|claim|confirm|receive|account|fee|parcel|deliver|redeliver|bank|wallet|refund|prize|reward|unlock|kyc)\b/i,
+      /\b(pay|verif|log ?in|sign ?in|claim|confirm|unlock|kyc)\b.{0,30}\bqr ?code\b/i
     ]
   },
   {
@@ -158,6 +163,29 @@ export const CONTENT_PATTERNS = [
     ]
   },
   {
+    id: 'subscription-refund',
+    category: 'subscription-refund',
+    weight: 32,
+    title: 'Fake subscription-renewal charge with a "call to cancel" hook',
+    detail: 'A surprise "your subscription auto-renewed for a large amount, call us to cancel or get a refund" message is a scam. The number connects you to fraudsters who will try to take control of your device or bank account. Check subscriptions only inside the real app or your card statement.',
+    re: [
+      /\b(subscription|membership|antivirus|norton|mcafee|geek squad|auto[- ]?renew\w*|your plan)\b.{0,90}\b(renew|charg|debit|bill)\w*\b.{0,90}\b(call|contact|dial|refund|cancel|dispute|unauthorized|did ?n'?t authorize|not authorize)\b/i
+    ]
+  },
+  {
+    id: 'crypto-recovery',
+    category: 'crypto-recovery',
+    weight: 32,
+    title: 'Fake "we can recover your lost crypto/funds" offer',
+    detail: 'These scams target people who were already defrauded, promising to recover lost money for an upfront fee or your wallet details — then steal again. No legitimate service guarantees recovery of lost crypto, and none needs your seed phrase or private key.',
+    re: [
+      /\blost (money|funds|crypto|bitcoin|investment)\b.{0,45}(scam|fraud|scammer|hack)\b.{0,70}(recover|get (it|them|your.{0,20})?back|reclaim|retriev)/i,
+      /\b(recover|recovery|reclaim|retriev\w+)\b.{0,45}\b(lost|stolen|scammed)\b.{0,30}\b(crypto|bitcoin|btc|funds|money|investment|wallet)\b/i,
+      /\b(recovery|upfront) fee\b.{0,45}\b(crypto|bitcoin|funds|wallet|recover)\b/i,
+      /\b(send|share|provide)\b.{0,25}\b(wallet (address|details)|seed phrase|private key|recovery phrase)\b/i
+    ]
+  },
+  {
     id: 'job-scam',
     category: 'job',
     weight: 22,
@@ -170,7 +198,12 @@ export const CONTENT_PATTERNS = [
   {
     id: 'secrecy',
     category: 'secrecy',
-    weight: 18,
+    // Deliberately below the STRONG_SIGNAL_WEIGHT anchor (18): a secrecy
+    // request alone (e.g. "don't tell mom about the surprise party") is
+    // often innocent, so on its own it must stay in "low". Its real power is
+    // in the threat+secrecy combo (digital-arrest signature), which fires
+    // regardless of this base weight.
+    weight: 12,
     title: 'Tells you to keep it secret',
     detail: 'Scammers isolate victims. Anyone who says "do not tell your family or your bank" is hiding from the people who would recognize the fraud instantly.',
     re: [
@@ -280,6 +313,8 @@ export const ADVICE = {
   'tech-support': 'Close the pop-up / hang up. Never call a number in a virus warning or let anyone remotely access your device. Real tech companies never cold-call you about infections.',
   'emergency': 'Stop and verify. Call the relative directly on the number you already have, or check with another family member, before sending any money — even if the caller sounds panicked and says not to.',
   'quishing': 'Do not scan QR codes from unexpected messages, emails, or stickers. Type the official web address yourself instead.',
+  'subscription-refund': 'Do not call the number. Check any subscription directly in the real app or on your card statement. Scammers use fake renewal charges to get you to call, then take over your device or bank account.',
+  'crypto-recovery': 'Ignore it. No legitimate service can guarantee recovery of lost crypto, and none needs an upfront fee, your seed phrase, or your private key. These target people who were already scammed.',
   'toll-fine': 'Do not click the link or pay. Check unpaid tolls only through the official toll agency\'s app or website, typed in yourself — never a link from a text.',
   'payment-redirect': 'Never change payment or bank details based on an email or message alone. Call the person or company using a phone number you already had on file — not one from this message — to confirm before sending any payment.',
   url: 'Check the address carefully: the real domain is what comes just before the last dot (e.g. "paypal.com", not "paypal.com.verify-login.xyz").'

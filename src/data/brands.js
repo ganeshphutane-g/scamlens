@@ -64,7 +64,48 @@ export const BRANDS = [
   { name: 'Zoom', domains: ['zoom.us', 'zoom.com'], generic: true },
   { name: 'IRS (US)', domains: ['irs.gov'] },
   { name: 'Airbnb', domains: ['airbnb.com'] },
-  { name: 'Booking.com', domains: ['booking.com'], generic: true }
+  { name: 'Booking.com', domains: ['booking.com'], generic: true },
+  // Delivery / logistics — the single biggest smishing-impersonation target
+  { name: 'Royal Mail', domains: ['royalmail.com'] },
+  { name: 'Evri', domains: ['evri.com'] },
+  { name: 'Canada Post', domains: ['canadapost.ca', 'canadapost-postescanada.ca'] },
+  { name: 'Australia Post', domains: ['auspost.com.au'] },
+  { name: 'An Post', domains: ['anpost.ie'] },
+  { name: 'Correos', domains: ['correos.es'] },
+  { name: 'Poste Italiane', domains: ['poste.it'] },
+  { name: 'Blue Dart', domains: ['bluedart.com'] },
+  { name: 'Delhivery', domains: ['delhivery.com'] },
+  // Fintech / neobanks / payment apps
+  { name: 'Revolut', domains: ['revolut.com'] },
+  { name: 'Monzo', domains: ['monzo.com'] },
+  { name: 'Wise', domains: ['wise.com'] },
+  { name: 'N26', domains: ['n26.com'] },
+  { name: 'Venmo', domains: ['venmo.com'] },
+  { name: 'Zelle', domains: ['zellepay.com'] },
+  { name: 'Cash App', domains: ['cash.app'] },
+  { name: 'Santander', domains: ['santander.com', 'santander.co.uk'] },
+  { name: 'NatWest', domains: ['natwest.com'] },
+  { name: 'Lloyds Bank', domains: ['lloydsbank.com'] },
+  { name: 'Capital One', domains: ['capitalone.com'] },
+  { name: 'Discover', domains: ['discover.com'], generic: true },
+  // Crypto exchanges / wallets (high-value impersonation)
+  { name: 'Kraken', domains: ['kraken.com'], generic: true },
+  { name: 'Crypto.com', domains: ['crypto.com'] },
+  { name: 'Trust Wallet', domains: ['trustwallet.com'] },
+  { name: 'Ledger', domains: ['ledger.com'], generic: true },
+  // Big-tech accounts / social
+  { name: 'Snapchat', domains: ['snapchat.com'] },
+  { name: 'TikTok', domains: ['tiktok.com'] },
+  { name: 'Discord', domains: ['discord.com'] },
+  { name: 'Yahoo', domains: ['yahoo.com'] },
+  { name: 'Proton', domains: ['proton.me', 'protonmail.com'] },
+  { name: 'Disney+', domains: ['disneyplus.com'] },
+  { name: 'Temu', domains: ['temu.com'] },
+  { name: 'Shein', domains: ['shein.com'] },
+  // Government / tax (non-India)
+  { name: 'HMRC (UK)', domains: ['hmrc.gov.uk', 'tax.service.gov.uk'] },
+  { name: 'Social Security (US)', domains: ['ssa.gov'] },
+  { name: 'DVLA (UK)', domains: ['dvla.gov.uk'] }
 ];
 
 /** Set of every official registrable domain above, for exact-match checks. */
