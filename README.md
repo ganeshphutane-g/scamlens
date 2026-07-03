@@ -4,6 +4,8 @@
 
 Phishing texts, fake "digital arrest" police calls, KYC-expiry scams, lottery wins nobody entered, romance-scam money requests, work-from-home "task" fraud — the scripts repeat endlessly, and the people most often targeted (older relatives, first-time smartphone users, anyone in a moment of stress) are the least equipped to spot them. ScamLens exists so that anyone — not just security-savvy people — can paste a message and immediately understand *why* it's dangerous and *what to do next*, in plain language, with zero setup and zero risk of the message itself being sent anywhere.
 
+**▶ Use it right now, in your browser: [ganeshphutane-g.github.io/scamlens](https://ganeshphutane-g.github.io/scamlens/)** — nothing you type is sent anywhere; the page runs entirely on your device.
+
 - 🔒 **100% offline.** No server, no API calls, no account, no analytics. Every byte you paste stays in your browser or terminal.
 - 🧠 **Explains itself.** Every red flag comes with a plain-language reason, not just a score.
 - ⚡ **Zero setup.** One file for the web UI, one command for the CLI. No dependencies at runtime.
