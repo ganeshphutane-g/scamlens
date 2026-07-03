@@ -31,7 +31,7 @@ Open an issue with:
 
 ## Regional and language coverage
 
-The initial pattern set skews toward English-language scams common in India, the US, and the UK, because that's where the initial testing corpus came from. Expanding coverage to other languages and regions is one of the highest-value contributions possible — open an issue first to discuss structure if you're adding a new language, since content patterns are currently regex-based and English-only.
+The pattern set covers scams common in India, the US, and the UK, in English and Hindi/Hinglish (romanized Hindi and Devanagari — see the Hinglish/Devanagari alternates inside each pattern in `src/data/patterns.js`). Expanding to other languages and regions is one of the highest-value contributions possible. To add a language, add localized alternates as additional regexes inside the *existing* category (so the category's advice and combos still apply) rather than creating a separate parallel pattern set, and include both scam and legitimate examples in that language in the test corpus.
 
 ## Code style
 

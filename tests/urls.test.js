@@ -119,3 +119,17 @@ test('a long but DNS-legal-length label near the brand-comparison threshold stil
   const elapsed = Date.now() - start;
   assert.ok(elapsed < 200, `analyzeUrl took ${elapsed}ms on a 63-char label`);
 });
+
+test('multi-character homoglyphs (rn->m) are caught', () => {
+  const r = analyzeUrl('https://www.rnonzo.com/verify'); // rn -> m => monzo
+  assert.ok(r.flags.some(f => f.id === 'url-homoglyph-brand' || f.id === 'url-typosquat'));
+  const r2 = analyzeUrl('https://arnazon.com/orders'); // rn -> m => amazon
+  assert.ok(r2.flags.some(f => f.id === 'url-homoglyph-brand' || f.id === 'url-typosquat'));
+});
+
+test('multi-character homoglyph normalization does not false-positive on ordinary words', () => {
+  for (const url of ['https://modern-furniture.com/sofa', 'https://corner-shop.com/deals', 'https://govern-ance.org/x']) {
+    const r = analyzeUrl(url);
+    assert.ok(!r.flags.some(f => f.weight >= 25), `false positive on ${url}: ${JSON.stringify(r.flags)}`);
+  }
+});

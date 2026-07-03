@@ -32,7 +32,11 @@ const SCAMS = [
   ['grandparent emergency scam', 'Grandma, it is me your grandson. I have been in an accident and arrested. I need bail money right now urgently, please do not tell mom or dad, it is an emergency.'],
   ['quishing QR scam', 'Your parcel could not be delivered due to an address issue. Scan the QR code below to verify your details and pay the redelivery fee to receive your package.'],
   ['subscription-refund scam', 'Your Geek Squad subscription has been renewed for $499.99. If you did not authorize this, call our billing department immediately at 1-888-555-0142 to cancel and get a refund.'],
-  ['crypto-recovery scam', 'Have you lost money to a crypto scam? Our recovery team can get your funds back. Just pay a small upfront recovery fee and send your wallet details to start.']
+  ['crypto-recovery scam', 'Have you lost money to a crypto scam? Our recovery team can get your funds back. Just pay a small upfront recovery fee and send your wallet details to start.'],
+  ['Hinglish bank OTP scam', 'Aapka SBI khata band ho jayega. Turant KYC update karo aur apna OTP batao warna account block ho jayega.'],
+  ['Hinglish digital-arrest scam', 'Main CBI se bol raha hoon. Aapka Aadhaar money laundering case me hai. Aap digital arrest me ho. Kisi ko mat batao. Turant 50000 rupaye bhejo warna giraftar kar lenge.'],
+  ['Hinglish lottery scam', 'Badhai ho! Aap KBC lottery jeet gaye 25 lakh. Inaam pane ke liye processing fees bhejo turant.'],
+  ['Devanagari lottery scam', 'बधाई हो! आपने 25 लाख की लॉटरी जीती है। इनाम पाने के लिए तुरंत प्रोसेसिंग फीस भेजो।']
 ];
 
 const LEGIT = [
@@ -53,7 +57,9 @@ const LEGIT = [
   ['legit event check-in QR', 'Your ticket is confirmed. Scan the QR code at the entrance to check in. See you at the show!'],
   ['legit surprise-party secrecy', 'Do not tell mom about the surprise party we are planning for her birthday next week!'],
   ['legit family hospital text', 'Hi mom, it is me. I am at the hospital with grandma, everything is ok, just call me when you can.'],
-  ['legit antivirus renewal notice', 'Your Norton 360 subscription renews on July 10. Your protection keeps your devices safe from viruses. Manage your plan anytime in your account.']
+  ['legit antivirus renewal notice', 'Your Norton 360 subscription renews on July 10. Your protection keeps your devices safe from viruses. Manage your plan anytime in your account.'],
+  ['legit Hinglish chat', 'Yaar jaldi aana, movie start hone wali hai. Khana khaya kya?'],
+  ['legit Hinglish family text', 'Beta khana kha lena time pe, aur ghar aate waqt doodh le aana.']
 ];
 
 for (const [name, text] of SCAMS) {

@@ -1,5 +1,10 @@
 # ScamLens
 
+[![tests](https://github.com/ganeshphutane-g/scamlens/actions/workflows/ci.yml/badge.svg)](https://github.com/ganeshphutane-g/scamlens/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![dependencies: none](https://img.shields.io/badge/runtime%20deps-0-brightgreen.svg)
+![offline](https://img.shields.io/badge/network%20calls-0-brightgreen.svg)
+
 **Paste any suspicious message, email, or link. Get an instant, plain-language risk report. Nothing you paste ever leaves your device.**
 
 Phishing texts, fake "digital arrest" police calls, KYC-expiry scams, lottery wins nobody entered, romance-scam money requests, work-from-home "task" fraud — the scripts repeat endlessly, and the people most often targeted (older relatives, first-time smartphone users, anyone in a moment of stress) are the least equipped to spot them. ScamLens exists so that anyone — not just security-savvy people — can paste a message and immediately understand *why* it's dangerous and *what to do next*, in plain language, with zero setup and zero risk of the message itself being sent anywhere.
@@ -69,14 +74,14 @@ You can verify this yourself — the entire detection engine is under 750 lines 
 
 ScamLens is a **second opinion, not a guarantee**. A low score does not mean a message is safe — novel scam scripts, or scams in languages/regions the pattern set doesn't yet cover well, can still slip through. A medium/high score does not mean a message is definitely fraudulent — always use your own judgment, and when money, credentials, or personal data are involved, verify independently through an official app or number you already trust, not anything in the message itself.
 
-The pattern set currently has stronger coverage for English-language scams common in India, the US, and the UK. Coverage of other languages and regions is an open area — see [Contributing](#contributing).
+The pattern set has the strongest coverage for scams common in India, the US, and the UK, in **English and Hindi/Hinglish** (including Devanagari). Coverage of other languages and regions is an open area — see [Contributing](#contributing).
 
 ## Development
 
 ```bash
 git clone https://github.com/ganeshphutane-g/scamlens.git
 cd scamlens
-npm test          # run the test suite (65+ tests: unit + a real-world scam/legit corpus)
+npm test          # run the test suite (80+ tests: unit + a real-world scam/legit corpus)
 npm run web       # local web UI at http://localhost:4173
 npm start "..."    # run the CLI directly from source
 ```

@@ -14,6 +14,9 @@ export const CONTENT_PATTERNS = [
     title: 'Asks you to send a code, PIN, or password to someone else',
     detail: 'No legitimate bank, company, or government agency ever asks you to share an OTP, PIN, CVV, or password. Only fraudsters do.',
     re: [
+      // Hinglish / Devanagari: "OTP batao/bhejo", "PIN share karo"
+      /\b(otp|pin|password|cvv|code|number)\b.{0,20}\b(batao|bta ?do|bhejo|bhej ?do|share ?karo|de ?do|likho|forward ?karo)\b/i,
+      /(ओटीपी|पासवर्ड|पिन|कोड).{0,15}(बताओ|भेजो|भेज दो|साझा|शेयर)/,
       // Unambiguous "give it to a third party" verbs only — NOT enter/verify/
       // confirm/update, which are equally common in legitimate self-service
       // 2FA prompts ("enter the OTP to log in"). Those are handled by the
@@ -48,6 +51,9 @@ export const CONTENT_PATTERNS = [
     title: 'Demands untraceable payment',
     detail: 'Gift cards, wire transfers, and cryptocurrency are favored by scammers because payments cannot be reversed or traced. No genuine organization collects fees this way.',
     re: [
+      // Hinglish / Devanagari: "paise bhejo/transfer karo"
+      /\b(paisa|paise|rupay|rupaye|rupees|amount)\b.{0,20}\b(bhejo|bhej ?do|transfer ?karo|dalo|daal ?do|send ?karo|jama ?karo)\b/i,
+      /(पैसे?|रुपये?|रकम).{0,15}(भेजो|भेज दो|ट्रांसफर|जमा|डालो)/,
       /\b(gift ?cards?|itunes card|google play (card|gift|voucher)|steam (card|wallet)|amazon (gift|pay gift)|prepaid (card|voucher)|western union|moneygram|wire transfer|bitcoin|btc\b|usdt|crypto(currency)? (wallet|payment|address)|pay (via|with|in|using) (bitcoin|crypto|gift|usdt)|recharge (coupon|voucher))\b/i
     ]
   },
@@ -58,6 +64,9 @@ export const CONTENT_PATTERNS = [
     title: 'Threatens arrest, police, or legal action',
     detail: 'Real police and courts never announce arrests by message or demand money over a call. "Digital arrest" is not a real legal process — it is a well-known scam script.',
     re: [
+      // Hinglish / Devanagari arrest/police threats
+      /\b(giraftar|gireftar|giraftari|police ?case|thane ?(bula|aana)|jail ?bhej|arrest ?ho|warrant ?nikla|kanooni ?(karyawahi|karvai)|digital ?arrest)\b/i,
+      /(गिरफ्तार|पुलिस केस|कानूनी कार्रवाई|वारंट|जेल)/,
       /\b(legal action|lawsuit|arrest warrant|(will|shall) be arrested|digital arrest|police (case|complaint|verification)|fir (will be|has been) (filed|registered)|court (case|summons|notice)|money laundering case|cbi\b|narcotics|customs has (seized|held|detained)|your (number|sim|aadhaar( number)?|account)\b.{0,15}(is|was|has been) (linked to|used in|involved in).{0,30}(crime|illegal|fraud|laundering)|pay.{0,30}(fine|penalty).{0,30}(avoid|or face)|suspended by (trai|rbi|police))\b/i
     ]
   },
@@ -116,6 +125,9 @@ export const CONTENT_PATTERNS = [
     title: 'Announces a prize or lottery you never entered',
     detail: 'You cannot win a lottery you never bought a ticket for. Prize messages exist to collect "processing fees" or personal details.',
     re: [
+      // Hinglish / Devanagari lottery/prize lures
+      /\b(inaam|inam|lottery ?lag|lucky ?draw ?(jeeta|jita)|free ?recharge|muft|paisa ?jeeta|jeet ?gaye|badhai ?ho)\b/i,
+      /(इनाम|लॉटरी|मुफ्त|बधाई हो|जीत)/,
       /\b(you (have |'ve )?(won|been selected)|congratulations?[!, ]|lucky (winner|draw|customer)|lottery|jackpot|prize (money|of|worth)|claim your (prize|reward|gift|winnings)|free (iphone|gift|recharge|money|voucher)|inheritance|unclaimed (funds|money)|kbc (lottery|winner))\b/i
     ]
   },
@@ -136,6 +148,9 @@ export const CONTENT_PATTERNS = [
     title: 'Imitates a bank, utility, or government notice',
     detail: 'Fake KYC-expiry, electricity-disconnection, tax-refund, and parcel-stuck notices are the most common phishing lures. Real organizations use their official app or website, and never a random link.',
     re: [
+      // Hinglish / Devanagari: account/KYC/electricity notices
+      /\b((khata|account) (band|block) ?ho|kyc ?(update|karo|karwao|expire|khatam)|bijli ?(kat|katega|cut|connection)|(sim|number) ?band ?ho|verify ?karo)\b/i,
+      /(खाता बंद|केवाईसी|बिजली (कट|कनेक्शन)|सिम बंद|सत्यापन)/,
       /\b(kyc (update|expired?|expiring|pending|verification|suspended)|pan card.{0,30}(update|link|expire)|aadhaar.{0,30}(link|update|suspend|verify)|electricity (bill|connection|meter).{0,40}(disconnect\w*|cut\w*|suspend\w*)|(income )?tax refund|customs (duty|clearance|fee)|(parcel|package|shipment|courier).{0,40}(held|stuck|detained|customs|on hold|could not be delivered|delivery failed|address (issue|problem|incomplete))|delivery attempt (was )?(failed|unsuccessful)|account.{0,25}(frozen|blocked|suspended|deactivated|locked)|sim (card )?(will be )?(blocked|deactivated|suspended)|upgrad(e|ing) (our|the|your)?\s?network|port(ing)? (your|the) number|prevent(ing)? (a |the )?(sim )?port|keep your number (active|safe))\b/i
     ]
   },
@@ -207,6 +222,9 @@ export const CONTENT_PATTERNS = [
     title: 'Tells you to keep it secret',
     detail: 'Scammers isolate victims. Anyone who says "do not tell your family or your bank" is hiding from the people who would recognize the fraud instantly.',
     re: [
+      // Hinglish / Devanagari secrecy demands
+      /\b(kisi ?ko ?(mat|na) ?(batao|bataye|bata|bolo)|kisi ?ko ?mat|private ?rakho|raaz ?rakho|gupt ?rakho)\b/i,
+      /(किसी को (मत|ना) बता|गुप्त रखो|राज़ रखो)/,
       /\b(do n?o?'?t (tell|share|inform|disclose|mention)( this)?( to)? (anyone|anybody|family|mom|dad|mum|parents|your (family|wife|husband|son|daughter|children|parents|mom|dad|bank))|keep (this|it) (confidential|secret|private|between us)|must not (tell|inform))\b/i
     ]
   },
@@ -237,6 +255,9 @@ export const CONTENT_PATTERNS = [
     title: 'Manufactured urgency',
     detail: 'Deadlines of hours, "final warning", "act immediately" — urgency exists to stop you from thinking or asking someone. Real organizations give you time and options.',
     re: [
+      // Hinglish / Devanagari urgency
+      /\b(turant|jaldi ?(karo|se)|abhi ?karo|aaj ?hi|foran|jald ?se ?jald|samay ?kam|der ?mat ?karo)\b/i,
+      /(तुरंत|जल्दी|अभी करो|आज ही|देर मत)/,
       /\b(act (now|immediately|fast)|urgent(ly)?|immediate (action|attention)|within (24|48) hours?|expires? (today|tonight|soon|in)|last (chance|warning|day)|final (notice|warning|reminder)|right away|limited time|(will be|gets?) (suspended|blocked|closed|deactivated|terminated) (today|tonight|within|in \d)|avoid (suspension|disconnection|termination))\b/i
     ]
   },

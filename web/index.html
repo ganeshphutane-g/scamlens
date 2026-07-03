@@ -45,6 +45,8 @@
     min-height: 2.75rem; font-size: .85rem; font-weight: 500; text-decoration: underline; cursor: pointer;
   }
   #report { margin-top: 1.75rem; display: none; }
+  .report-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .copy-btn { font-size: .82rem; padding: .5rem .9rem; min-height: 2.5rem; }
   .badge {
     display: inline-flex; align-items: center; gap: .5rem; padding: .6rem 1.1rem;
     border-radius: 2rem; font-weight: 700; font-size: 1.05rem;
@@ -98,10 +100,13 @@
     <button id="clearBtn" type="button" class="secondary">Clear</button>
     <span class="examples">Try: <button data-ex="0">bank OTP</button><button data-ex="1">digital arrest</button><button data-ex="2">job offer</button></span>
   </div>
-  <p class="language-note">Detection currently works best for English-language messages. A low score is not a guarantee — especially for text in other languages.</p>
+  <p class="language-note">Detection works best for English and Hindi/Hinglish messages. A low score is not a guarantee — especially for text in other languages.</p>
 
   <div id="report" role="status" aria-live="polite">
-    <span id="badge" class="badge"></span>
+    <div class="report-head">
+      <span id="badge" class="badge"></span>
+      <button id="copyBtn" type="button" class="secondary copy-btn">Copy report</button>
+    </div>
     <div id="meter" class="meter"><div id="meterFill" style="width:0%"></div></div>
     <p id="summary" class="summary"></p>
 
@@ -174,13 +179,51 @@
   }
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const copyBtn = document.getElementById('copyBtn');
+  let lastReport = null;
+
+  function reportToText(r) {
+    const lines = [
+      `ScamLens result: ${r.level.toUpperCase()} RISK (${r.score}/100)`,
+      '',
+      r.summary,
+    ];
+    if (r.signals.length) {
+      lines.push('', 'Red flags found:');
+      for (const s of r.signals) lines.push(`- ${s.title}: ${s.detail}`);
+    }
+    if (r.advice.length) {
+      lines.push('', 'What to do:');
+      for (const a of r.advice) lines.push(`- ${a}`);
+    }
+    lines.push('', 'Checked with ScamLens (offline) — https://ganeshphutane-g.github.io/scamlens/');
+    return lines.join('\n');
+  }
 
   function run() {
     const text = input.value;
     if (!text.trim()) { report.style.display = 'none'; return; }
-    render(analyze(text));
+    lastReport = analyze(text);
+    render(lastReport);
     report.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
   }
+
+  copyBtn.addEventListener('click', async () => {
+    if (!lastReport) return;
+    const text = reportToText(lastReport);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Clipboard API unavailable (e.g. non-secure context) — fall back.
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch { /* ignore */ }
+      ta.remove();
+    }
+    const original = copyBtn.textContent;
+    copyBtn.textContent = 'Copied ✓';
+    setTimeout(() => { copyBtn.textContent = original; }, 1800);
+  });
 
   document.getElementById('analyzeBtn').addEventListener('click', run);
   document.getElementById('clearBtn').addEventListener('click', () => {

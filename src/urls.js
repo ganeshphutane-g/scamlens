@@ -1,7 +1,7 @@
 // URL extraction and analysis: finds links in a message and checks each
 // for the deception techniques phishing URLs actually use.
 
-import { normalizeConfusables, hasMixedScript } from './data/homoglyphs.js';
+import { normalizeConfusables, normalizeConfusablesAggressive, hasMixedScript } from './data/homoglyphs.js';
 import { RISKY_TLDS, MULTI_PART_TLDS, URL_SHORTENERS } from './data/tlds.js';
 import { OFFICIAL_DOMAINS, brandTokens, MIN_BRAND_TOKEN } from './data/brands.js';
 
@@ -138,10 +138,13 @@ export function analyzeUrl(raw) {
 
     const sld = registrable.split('.')[0];
     const sldNorm = normalizeConfusables(sld);
+    // Aggressive form additionally collapses multi-char lookalikes (rn→m,
+    // vv→w, cl→d). Only meaningful when it differs from the plain form.
+    const sldNormAggr = normalizeConfusablesAggressive(sld);
     const hostTokens = new Set(tokensOf(hostname).map(normalizeConfusables));
 
     for (const { token, brand, generic } of TOKEN_LIST) {
-      if (sldNorm === token && sld !== token) {
+      if ((sldNorm === token || sldNormAggr === token) && sld !== token) {
         flags.push(signal('url-homoglyph-brand', 35, `Fake "${brand}" domain using disguised characters`,
           `"${registrable}" imitates ${brand} by swapping in lookalike characters/digits.`, raw));
         break;

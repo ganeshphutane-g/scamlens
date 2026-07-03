@@ -19,6 +19,17 @@ export const CONFUSABLES = {
 
 const CYRILLIC_OR_GREEK = /[Ͱ-ϿЀ-ӿ]/;
 
+// Multi-character visual confusables: two glyphs that together imitate one
+// letter at a glance ("rnicrosoft" reads as "microsoft"). Applied only for
+// brand-lookalike comparison (never to display text), so a rare incidental
+// collision in an unrelated domain just yields a low-value "looks like X"
+// hint, not a hard error. Ordered longest-first so overlaps resolve safely.
+const MULTI_CONFUSABLES = [
+  ['rn', 'm'],
+  ['vv', 'w'],
+  ['cl', 'd'],
+];
+
 /**
  * Lowercase, strip accents, and replace confusable characters with the
  * ASCII letters they imitate. Used ONLY for lookalike comparison.
@@ -27,6 +38,18 @@ export function normalizeConfusables(str) {
   const lowered = str.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
   let out = '';
   for (const ch of lowered) out += CONFUSABLES[ch] ?? ch;
+  return out;
+}
+
+/**
+ * Like normalizeConfusables, but also collapses multi-character visual
+ * confusables (rn→m, vv→w, cl→d). Kept separate so callers can compare
+ * against BOTH forms and only treat a match as a homoglyph attack when the
+ * aggressive form differs from the plain one.
+ */
+export function normalizeConfusablesAggressive(str) {
+  let out = normalizeConfusables(str);
+  for (const [from, to] of MULTI_CONFUSABLES) out = out.split(from).join(to);
   return out;
 }
 
