@@ -18,11 +18,13 @@ export const CONTENT_PATTERNS = [
       /\b(otp|pin|password|cvv|code|number)\b.{0,20}\b(batao|bta ?do|bhejo|bhej ?do|share ?karo|de ?do|likho|forward ?karo)\b/i,
       /(ओटीपी|पासवर्ड|पिन|कोड).{0,15}(बताओ|भेजो|भेज दो|साझा|शेयर)/,
       // Unambiguous "give it to a third party" verbs only — NOT enter/verify/
-      // confirm/update, which are equally common in legitimate self-service
-      // 2FA prompts ("enter the OTP to log in"). Those are handled by the
-      // separate, lower-weight 'credential-entry-prompt' pattern below.
-      /\b(shar(e|ed|ing)|sen(d|t|ding)|provid(e|ed|ing)|giv(e|en|ing)|gave|tell|told|telling|repl(y|ied|ying)|forward(ed|ing)?|read (it )?out|read us|reading (it )?out)\b[^.\n!?]{0,50}\b(otp|one[- ]?time (password|passcode|pin)|password|passcode|pin\b|cvv|card number|debit card|credit card|upi pin|mpin|atm pin|aadhaar number|pan (card|number)|ssn|social security|bank (details|account)|net ?banking|login (details|credentials)|security code|verification code)\b/i,
-      /\b(otp|upi pin|cvv|password|mpin|verification code)\b[^.\n!?]{0,40}\b(shar(e|ed|ing)|sen(d|t|ding)|provid(e|ed|ing)|repl(y|ied|ying)|batao|bhejo)\b/i,
+      // confirm/update (legit self-service 2FA), NOT past-tense delivery
+      // ("we SENT you an OTP"), and NOT negated safety advice ("NEVER share
+      // your OTP", "do not share it with anyone" — the exact line banks
+      // themselves send). The leading negative lookbehind drops negated
+      // advice; present-imperative/gerund-only verbs drop the delivery case.
+      /(?<!\b(?:not|never|dont|don'?t|n'?t|kabhi|mat|nahi)\b[\s\w]{0,25})\b(shar(e|ing)|send(ing)?|provid(e|ing)|giv(e|ing)|tell(ing)?|repl(y|ying)|forward(ing)?|read (it )?out|read us|reading (it )?out)\b[^.\n!?]{0,50}\b(otp|one[- ]?time (password|passcode|pin)|password|passcode|pin\b|cvv|card number|debit card|credit card|upi pin|mpin|atm pin|aadhaar number|pan (card|number)|ssn|social security|bank (details|account)|net ?banking|login (details|credentials)|security code|verification code)\b/i,
+      /\b(otp|upi pin|cvv|password|mpin|verification code)\b[^.\n!?]{0,40}(?<!\b(?:not|never|dont|don'?t|n'?t|kabhi|mat|nahi)\b[\s\w]{0,20})\b(shar(e|ing)|send(ing)?|provid(e|ing)|repl(y|ying)|batao|bhejo)\b/i,
       // "Read/confirm/repeat the code you just received" to a caller — the
       // signature of SIM-swap and voice-phishing social engineering.
       /\b(read|confirm|repeat|tell (us|me))\b.{0,15}\b(code|otp|pin)\b.{0,25}\b(texted|sent|received|got|just sent)\b/i,
@@ -51,9 +53,11 @@ export const CONTENT_PATTERNS = [
     title: 'Demands untraceable payment',
     detail: 'Gift cards, wire transfers, and cryptocurrency are favored by scammers because payments cannot be reversed or traced. No genuine organization collects fees this way.',
     re: [
-      // Hinglish / Devanagari: "paise bhejo/transfer karo"
-      /\b(paisa|paise|rupay|rupaye|rupees|amount)\b.{0,20}\b(bhejo|bhej ?do|transfer ?karo|dalo|daal ?do|send ?karo|jama ?karo)\b/i,
-      /(पैसे?|रुपये?|रकम).{0,15}(भेजो|भेज दो|ट्रांसफर|जमा|डालो)/,
+      // Hinglish / Devanagari — must name an UNTRACEABLE rail (gift card,
+      // crypto, voucher, recharge code). Bare "paise bhej do" is an ordinary
+      // request between people, not a scam, so it is intentionally excluded.
+      /\b(gift ?card|google play|itunes|voucher|recharge (code|coupon)|bitcoin|crypto|usdt|paytm cash)\b.{0,25}\b(bhejo|bhej ?do|kharido|khareedo|le ?lo|de ?do|transfer ?karo)\b/i,
+      /(गिफ्ट कार्ड|वाउचर|बिटकॉइन|रिचार्ज कोड).{0,20}(भेजो|भेज दो|खरीदो)/,
       /\b(gift ?cards?|itunes card|google play (card|gift|voucher)|steam (card|wallet)|amazon (gift|pay gift)|prepaid (card|voucher)|western union|moneygram|wire transfer|bitcoin|btc\b|usdt|crypto(currency)? (wallet|payment|address)|pay (via|with|in|using) (bitcoin|crypto|gift|usdt)|recharge (coupon|voucher))\b/i
     ]
   },
@@ -77,7 +81,11 @@ export const CONTENT_PATTERNS = [
     title: 'Fake virus / tech-support alert',
     detail: 'Pop-ups and calls claiming your device is infected and telling you to call a number are fake. Microsoft, Apple, and antivirus companies never cold-call you or put a phone number in a virus warning.',
     re: [
-      /\b((your (computer|pc|device|iphone|mac|system) (is|has been|may be) (infected|hacked|compromised|blocked|at risk))|virus (detected|found|alert)|malware detected|(microsoft|apple|windows|norton|mcafee) (support|security|technician).{0,40}(call|contact|dial)|call (this )?(toll[- ]?free )?number.{0,30}(support|technician|microsoft|apple|remove|virus)|do not (restart|turn off|shut down) your (computer|pc|device))\b/i
+      /\b((your (computer|pc|device|iphone|mac|system) (is|has been|may be) (infected|hacked|compromised|blocked|at risk))|virus (detected|found|alert)|malware detected|(microsoft|apple|windows|norton|mcafee) (support|security|technician).{0,40}(call|contact|dial)|call (this )?(toll[- ]?free )?number.{0,30}(support|technician|microsoft|apple|remove|virus)|do not (restart|turn off|shut down) your (computer|pc|device))\b/i,
+      // Hinglish / Devanagari tech-support
+      /\b(computer|system|laptop|device|pc)\b.{0,25}\b(virus (hai|aa gaya|mil)|infect\w*|hack ho|band ho|block ho gaya)\b/i,
+      /\b(virus|technician|microsoft|support)\b.{0,25}\b(call kare|number par call|number pe call|se baat kare)\b/i,
+      /(वायरस|हैक हो|तकनीशियन|कंप्यूटर.{0,15}(वायरस|संक्रमित))/
     ]
   },
   {
@@ -151,7 +159,7 @@ export const CONTENT_PATTERNS = [
       // Hinglish / Devanagari: account/KYC/electricity notices
       /\b((khata|account) (band|block) ?ho|kyc ?(update|karo|karwao|expire|khatam)|bijli ?(kat|katega|cut|connection)|(sim|number) ?band ?ho|verify ?karo)\b/i,
       /(खाता बंद|केवाईसी|बिजली (कट|कनेक्शन)|सिम बंद|सत्यापन)/,
-      /\b(kyc (update|expired?|expiring|pending|verification|suspended)|pan card.{0,30}(update|link|expire)|aadhaar.{0,30}(link|update|suspend|verify)|electricity (bill|connection|meter).{0,40}(disconnect\w*|cut\w*|suspend\w*)|(income )?tax refund|customs (duty|clearance|fee)|(parcel|package|shipment|courier).{0,40}(held|stuck|detained|customs|on hold|could not be delivered|delivery failed|address (issue|problem|incomplete))|delivery attempt (was )?(failed|unsuccessful)|account.{0,25}(frozen|blocked|suspended|deactivated|locked)|sim (card )?(will be )?(blocked|deactivated|suspended)|upgrad(e|ing) (our|the|your)?\s?network|port(ing)? (your|the) number|prevent(ing)? (a |the )?(sim )?port|keep your number (active|safe))\b/i
+      /\b(kyc (update|expired?|expiring|pending|verification|suspended)|pan card.{0,30}(update|link|expire)|aadhaar.{0,30}(link|update|suspend|verify)|electricity (bill|connection|meter).{0,40}(disconnect\w*|cut\w*|suspend\w*)|(income )?tax refund|customs (duty|clearance|fee)|(parcel|package|shipment|courier).{0,40}(held|stuck|detained|on hold|could not be delivered|delivery failed|address (issue|problem|incomplete)).{0,70}(pay (a |the |your |₹|\$|rs)|(re-?delivery|redelivery|customs|clearance|handling) (fee|charge|duty)|click (here|the link|below)|(re-?schedule|reschedule) (your )?delivery|update your (address|payment)|to release|link below)|account.{0,25}(frozen|blocked|suspended|deactivated|locked)|sim (card )?(will be )?(blocked|deactivated|suspended)|upgrad(e|ing) (our|the|your)?\s?network|port(ing)? (your|the) number|prevent(ing)? (a |the )?(sim )?port|keep your number (active|safe))\b/i
     ]
   },
   {
@@ -184,7 +192,10 @@ export const CONTENT_PATTERNS = [
     title: 'Fake subscription-renewal charge with a "call to cancel" hook',
     detail: 'A surprise "your subscription auto-renewed for a large amount, call us to cancel or get a refund" message is a scam. The number connects you to fraudsters who will try to take control of your device or bank account. Check subscriptions only inside the real app or your card statement.',
     re: [
-      /\b(subscription|membership|antivirus|norton|mcafee|geek squad|auto[- ]?renew\w*|your plan)\b.{0,90}\b(renew|charg|debit|bill)\w*\b.{0,90}\b(call|contact|dial|refund|cancel|dispute|unauthorized|did ?n'?t authorize|not authorize)\b/i
+      // Trigger requires a phone/dispute hook (call/dial/refund/dispute/
+      // unauthorized) — NOT bare "cancel"/"contact", which legit renewal
+      // emails use for self-service ("to cancel, go to Settings").
+      /\b(subscription|membership|antivirus|norton|mcafee|geek squad|auto[- ]?renew\w*|your plan)\b.{0,90}\b(renew|charg|debit|bill)\w*\b.{0,90}\b(call|dial|refund|dispute|unauthorized|did ?n'?t authorize|not authorize)\b/i
     ]
   },
   {
@@ -198,6 +209,64 @@ export const CONTENT_PATTERNS = [
       /\b(recover|recovery|reclaim|retriev\w+)\b.{0,45}\b(lost|stolen|scammed)\b.{0,30}\b(crypto|bitcoin|btc|funds|money|investment|wallet)\b/i,
       /\b(recovery|upfront) fee\b.{0,45}\b(crypto|bitcoin|funds|wallet|recover)\b/i,
       /\b(send|share|provide)\b.{0,25}\b(wallet (address|details)|seed phrase|private key|recovery phrase)\b/i
+    ]
+  },
+  {
+    id: 'overpayment',
+    category: 'payment',
+    weight: 24,
+    title: 'Overpayment / fake-check "send the extra back" scam',
+    detail: 'A buyer who "accidentally" overpays and asks you to refund the difference is running a fake-check scam: their payment bounces days later, but the money you sent back is real and gone. Never refund an overpayment.',
+    re: [
+      /\b(cashier'?s? ?check|cheque|check|money ?order|payment|zelle|wire)\b.{0,60}\b(more than|extra|over ?paid|overpay\w*|too much|by mistake|wrong amount)\b/i,
+      /\bsend (the |me the )?(extra|difference|balance|remaining|overpaid|excess)( amount)? back\b/i,
+      /\b(refund|send|wire|return)\b.{0,30}\b(extra|difference|balance)\b.{0,40}\b(shipping (agent|company)|mover|shipper|courier|my agent)\b/i
+    ]
+  },
+  {
+    id: 'sextortion',
+    category: 'sextortion',
+    weight: 28,
+    title: 'Sextortion / webcam blackmail',
+    detail: 'Emails claiming to have recorded you through your webcam and threatening to send it to your contacts are a bluff sent to millions at once. They have no video. Do not pay, do not reply — delete it.',
+    re: [
+      /\b(recorded|filmed|captured|footage|video|webcam|camera|screen ?record)\b.{0,45}\b(adult|porn|explicit|xxx|you (were )?(watching|visiting)|while you)\b/i,
+      /\b(send|leak|share|release|publish|expose|post|forward)\b.{0,45}\b(video|footage|recording|clip|it)\b.{0,30}\b(all (your|of your) )?(contacts|friends|family|everyone you know|social media)\b/i,
+      /\b(i (have|know) your (password|contacts)|i (hacked|have access to) your (device|phone|camera|webcam|email))\b/i
+    ]
+  },
+  {
+    id: 'bank-fraud-alert',
+    category: 'bank-fraud-alert',
+    weight: 24,
+    title: 'Fake bank fraud-alert callback',
+    detail: 'A "we blocked a suspicious transaction, call us to reverse it" message tricks you into calling fraudsters who then walk you into approving the real theft. Never use a number from the message — call the number printed on your card.',
+    re: [
+      /\b(suspicious|unauthorized|unauthorised|fraudulent|unusual|declined) (transaction|charge|payment|activity|transfer|purchase|login|sign[- ]?in)\b.{0,80}\b(call|contact|dial|reply|press \d|tap|click)\b/i,
+      /\bdid you (make|attempt|authorize|try to make)\b.{0,25}\b(a |this )?(payment|transaction|purchase|transfer|charge)\b/i,
+      /\b(call|contact|dial) (us|our (fraud|security) (team|department))\b.{0,30}\b(reverse|cancel|dispute|decline|block|secure|stop) (it|this|the (transaction|charge|payment))\b/i
+    ]
+  },
+  {
+    id: 'rental-deposit',
+    category: 'rental-deposit',
+    weight: 22,
+    title: 'Rental deposit ("landlord away, pay to hold") scam',
+    detail: 'A landlord who is conveniently out of town and wants a deposit or first month\'s rent before you can view the place is a scam — they do not own it. Never send money for a rental you have not seen in person with a verified owner.',
+    re: [
+      /\b(apartment|flat|house|room|rental|property|place|condo)\b.{0,80}\b(out of (town|the country|state|the city)|abroad|overseas|another (city|state|country)|can'?t (show|meet|be there)|working (away|abroad|remotely)|missionary|military)\b/i,
+      /\b(send|transfer|pay|wire|deposit)\b.{0,35}\b(deposit|holding fee|first month'?s? rent|security deposit)\b.{0,45}\b(hold|reserve|secure|before (anyone|someone|others)|ship (you )?the keys|mail (you )?the keys)\b/i
+    ]
+  },
+  {
+    id: 'advance-fee-payout',
+    category: 'advance-fee',
+    weight: 24,
+    title: 'Pay a "fee" to release your payout/refund/claim',
+    detail: 'Being told to pay a GST, processing, clearance, or release "fee" before you can receive a payout, refund, insurance claim, or prize is always a scam. Real payouts are never gated behind a fee you must pay first.',
+    re: [
+      /\b(payout|maturity (amount|value)|claim (amount|money)|pension|policy (amount|bonus)|insurance|prize money|refund|inheritance|compensation)\b.{0,80}\b(gst|processing|release|clearance|handling|service|registration|legal|transfer) (charge|fee|tax|amount)\b/i,
+      /\b(deposit|pay|submit)\b.{0,30}\b(gst|processing|release|clearance|handling) (charge|fee|tax)\b.{0,45}\b(to (release|receive|claim|get|unlock)|before)\b/i
     ]
   },
   {
@@ -338,5 +407,8 @@ export const ADVICE = {
   'crypto-recovery': 'Ignore it. No legitimate service can guarantee recovery of lost crypto, and none needs an upfront fee, your seed phrase, or your private key. These target people who were already scammed.',
   'toll-fine': 'Do not click the link or pay. Check unpaid tolls only through the official toll agency\'s app or website, typed in yourself — never a link from a text.',
   'payment-redirect': 'Never change payment or bank details based on an email or message alone. Call the person or company using a phone number you already had on file — not one from this message — to confirm before sending any payment.',
+  sextortion: 'It is a bluff sent to millions at once — they have no video. Do not pay and do not reply. Delete it, and change any password they quote (it came from an old data breach, not your device).',
+  'bank-fraud-alert': 'Do not call the number in the message. Hang up and call the number printed on the back of your card or in your official banking app. Real fraud teams never need you to "reverse" a charge by sending money or sharing codes.',
+  'rental-deposit': 'Never pay a deposit or rent for a place you have not seen in person. A landlord who is "out of town" and cannot show it, but wants money to hold it, does not own it.',
   url: 'Check the address carefully: the real domain is what comes just before the last dot (e.g. "paypal.com", not "paypal.com.verify-login.xyz").'
 };

@@ -133,3 +133,19 @@ test('multi-character homoglyph normalization does not false-positive on ordinar
     assert.ok(!r.flags.some(f => f.weight >= 25), `false positive on ${url}: ${JSON.stringify(r.flags)}`);
   }
 });
+
+test('multi-char homoglyph brand hidden in a SUBDOMAIN is caught', () => {
+  const r = analyzeUrl('http://vvhatsapp.secure-login.com/verify'); // vv -> w => whatsapp
+  assert.ok(r.flags.some(f => f.id === 'url-brand-in-domain'), JSON.stringify(r.flags));
+  const r2 = analyzeUrl('http://account.rnicrosoft.evil.top/x'); // rn -> m => microsoft
+  assert.ok(r2.flags.some(f => f.id === 'url-brand-in-domain'), JSON.stringify(r2.flags));
+});
+
+test('URL extraction is not quadratic on long dotted/hyphenated runs (ReDoS guard)', () => {
+  for (const adversarial of ['a.'.repeat(24999) + 'a', 'a-'.repeat(24990) + 'a', 'sub.'.repeat(12000) + 'end']) {
+    const start = Date.now();
+    extractUrls(adversarial);
+    const elapsed = Date.now() - start;
+    assert.ok(elapsed < 200, `extractUrls took ${elapsed}ms on a ${adversarial.length}-char adversarial run`);
+  }
+});

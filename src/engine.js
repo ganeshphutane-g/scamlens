@@ -71,8 +71,13 @@ const LEVEL_SUMMARY = {
  *            urls:Array, advice:string[]}}
  */
 export function analyze(text) {
-  const input = String(text ?? '').slice(0, 50_000);
-  if (!input.trim()) {
+  // Cap length first (DoS bound), then collapse all whitespace — including
+  // newlines — to single spaces. Real scam SMS/emails are heavily
+  // line-broken, and several patterns bridge cue phrases across a sentence
+  // with ".{0,N}"; since "." never matches "\n", a line break between the
+  // cues would otherwise silently drop the whole match (false "safe").
+  const input = String(text ?? '').slice(0, 50_000).replace(/\s+/g, ' ').trim();
+  if (!input) {
     return { score: 0, level: 'low', summary: 'Nothing to analyze.', signals: [], urls: [], advice: [] };
   }
 

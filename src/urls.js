@@ -9,7 +9,11 @@ import { OFFICIAL_DOMAINS, brandTokens, MIN_BRAND_TOKEN } from './data/brands.js
 // excludes "]" (so URLs inside markdown-link brackets aren't over-matched),
 // which would otherwise truncate "http://[::1]/path" before the closing
 // bracket and silently drop the URL from analysis entirely.
-const URL_RE = /\bhttps?:\/\/\[[0-9a-f:]+\][^\s<>"']*|\bhttps?:\/\/[^\s<>"'\)\]]+|\bwww\.[^\s<>"'\)\]]+|\b[a-z0-9][a-z0-9-]*(?:\.[a-z0-9][a-z0-9-]*)+\/[^\s<>"'\)\]]*/gi;
+// The bare-domain (no-scheme, no-www) alternative bounds every label to the
+// DNS 63-char max and the label chain to 10, so a long run of dotted or
+// hyphenated characters can't trigger O(n^2) backtracking (a real host has
+// neither 64-char labels nor 10+ labels). See the ReDoS regression test.
+const URL_RE = /\bhttps?:\/\/\[[0-9a-f:]+\][^\s<>"']*|\bhttps?:\/\/[^\s<>"'\)\]]+|\bwww\.[^\s<>"'\)\]]+|\b[a-z0-9][a-z0-9-]{0,62}(?:\.[a-z0-9][a-z0-9-]{0,62}){1,10}\/[^\s<>"'\)\]]*/gi;
 const TRAILING_PUNCT = /[.,;:!?'"»›]+$/;
 
 /** Pull URL-looking strings out of free text (deduplicated, cleaned). */
@@ -141,7 +145,12 @@ export function analyzeUrl(raw) {
     // Aggressive form additionally collapses multi-char lookalikes (rn→m,
     // vv→w, cl→d). Only meaningful when it differs from the plain form.
     const sldNormAggr = normalizeConfusablesAggressive(sld);
-    const hostTokens = new Set(tokensOf(hostname).map(normalizeConfusables));
+    // Check host labels under BOTH single- and multi-char normalization so a
+    // brand hidden in a subdomain via rn→m / vv→w / cl→d (e.g.
+    // "vvhatsapp.secure-login.com") is still caught by the brand-in-domain check.
+    const hostTokens = new Set(
+      tokensOf(hostname).flatMap(t => [normalizeConfusables(t), normalizeConfusablesAggressive(t)])
+    );
 
     for (const { token, brand, generic } of TOKEN_LIST) {
       if ((sldNorm === token || sldNormAggr === token) && sld !== token) {

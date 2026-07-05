@@ -80,6 +80,25 @@
   .advice li:last-child { margin-bottom: 0; }
   .empty { color: var(--muted); text-align: center; padding: 1rem; }
   .language-note { margin-top: .6rem; font-size: .8rem; color: var(--muted); text-align: center; }
+  details.ai-panel { margin-top: 1.5rem; border: 1px solid var(--border); border-radius: .6rem; background: var(--panel); }
+  details.ai-panel > summary { cursor: pointer; padding: .8rem 1rem; font-weight: 600; list-style: none; }
+  details.ai-panel > summary::-webkit-details-marker { display: none; }
+  details.ai-panel > summary::before { content: "▸ "; color: var(--muted); }
+  details.ai-panel[open] > summary::before { content: "▾ "; }
+  .ai-body { padding: 0 1rem 1rem; }
+  .ai-body p { color: var(--muted); font-size: .9rem; }
+  .ai-body label { display: block; margin: .7rem 0 .3rem; font-size: .88rem; font-weight: 600; }
+  .ai-body input, .ai-body select {
+    width: 100%; padding: .6rem .7rem; background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border-strong); border-radius: .5rem; font: inherit; font-size: .92rem;
+  }
+  .ai-warn { color: var(--medium); font-size: .82rem; margin-top: .5rem; }
+  .ai-result { margin-top: 1rem; padding: .9rem 1rem; border-radius: .6rem; background: var(--panel-2); }
+  .ai-verdict { font-weight: 700; }
+  .ai-verdict.scam { color: var(--critical); }
+  .ai-verdict.suspicious { color: var(--high); }
+  .ai-verdict.likely_safe { color: var(--low); }
+  .ai-verdict.unclear { color: var(--muted); }
   footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 2.5rem 1.5rem 3rem; }
   footer a { color: var(--accent); }
   noscript { display: block; text-align: center; padding: 3rem; color: var(--high); }
@@ -89,7 +108,7 @@
 <header>
   <h1>Scam<span>Lens</span></h1>
   <p>Paste any suspicious message, email, or link below. Get an instant, plain-language risk report and know exactly what to do next.</p>
-  <div class="privacy-note">🔒 Runs entirely in your browser — nothing you paste is ever sent anywhere.</div>
+  <div class="privacy-note">🔒 The scam check runs entirely in your browser — nothing you paste is sent anywhere. (The optional AI second opinion is separate and clearly labelled.)</div>
 </header>
 <main>
   <noscript>ScamLens needs JavaScript enabled to analyze text locally in your browser.</noscript>
@@ -119,6 +138,34 @@
       <div class="section-title">What to do</div>
       <ul class="advice" id="advice"></ul>
     </div>
+
+    <details class="ai-panel" id="aiPanel">
+      <summary>Get an AI second opinion (optional)</summary>
+      <div class="ai-body">
+        <p>The check above is offline. You can also ask an AI model — useful for brand-new scams the rules don't know yet. Your choice how:</p>
+        <label for="aiBackend">Where the AI runs</label>
+        <select id="aiBackend">
+          <option value="ollama">Local model via Ollama — private, nothing leaves your device</option>
+          <option value="claude">Anthropic API (Claude) — sends the message to Anthropic, needs your key</option>
+        </select>
+
+        <div id="ollamaFields">
+          <label for="ollamaUrl">Ollama address</label>
+          <input id="ollamaUrl" type="text" value="http://localhost:11434" spellcheck="false">
+        </div>
+
+        <div id="claudeFields" style="display:none">
+          <label for="apiKey">Your Anthropic API key</label>
+          <input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+          <p class="ai-warn">⚠ With this option the message you pasted is sent to Anthropic's servers using your own key. It is not stored by ScamLens, but it does leave your device. Use the local option to keep everything private.</p>
+        </div>
+
+        <div class="row" style="margin-top:.9rem">
+          <button id="aiBtn" type="button">Ask the AI</button>
+        </div>
+        <div id="aiResult" class="ai-result" style="display:none" role="status" aria-live="polite"></div>
+      </div>
+    </details>
   </div>
 </main>
 <footer>
@@ -128,6 +175,7 @@
 
 <script type="module">
   import { analyze } from '../src/engine.js';
+  import { aiSecondOpinion } from '../src/ai.js';
 
   const input = document.getElementById('input');
   const report = document.getElementById('report');
@@ -239,6 +287,51 @@
       input.value = EXAMPLES[+btn.dataset.ex];
       run();
     });
+  });
+
+  // ---- Optional AI second opinion ----
+  const aiBackend = document.getElementById('aiBackend');
+  const ollamaFields = document.getElementById('ollamaFields');
+  const claudeFields = document.getElementById('claudeFields');
+  const aiBtn = document.getElementById('aiBtn');
+  const aiResult = document.getElementById('aiResult');
+
+  aiBackend.addEventListener('change', () => {
+    const claude = aiBackend.value === 'claude';
+    claudeFields.style.display = claude ? 'block' : 'none';
+    ollamaFields.style.display = claude ? 'none' : 'block';
+  });
+
+  aiBtn.addEventListener('click', async () => {
+    const text = input.value.trim();
+    if (!text) { aiResult.style.display = 'block'; aiResult.textContent = 'Paste a message above first.'; return; }
+    aiResult.style.display = 'block';
+    aiResult.textContent = 'Asking the AI…';
+    aiBtn.disabled = true;
+    try {
+      const backend = aiBackend.value;
+      const opts = { backend, inBrowser: true };
+      if (backend === 'ollama') {
+        opts.ollamaUrl = document.getElementById('ollamaUrl').value.trim() || 'http://localhost:11434';
+      } else {
+        opts.apiKey = document.getElementById('apiKey').value.trim();
+        if (!opts.apiKey) { aiResult.textContent = 'Enter your Anthropic API key, or switch to the local option.'; aiBtn.disabled = false; return; }
+      }
+      const r = await aiSecondOpinion(text, lastReport, opts);
+      const label = r.verdict.replace('_', ' ').toUpperCase();
+      aiResult.innerHTML = `
+        <div class="ai-verdict ${escapeHtml(r.verdict)}">${escapeHtml(label)} <span style="font-weight:400;color:var(--muted)">· confidence ${r.confidence}/100${r.scam_type ? ' · looks like ' + escapeHtml(r.scam_type) : ''}</span></div>
+        <p style="margin:.5rem 0 0;color:var(--text)">${escapeHtml(r.explanation)}</p>
+        ${r.advice ? `<p style="margin:.5rem 0 0"><strong>What to do:</strong> ${escapeHtml(r.advice)}</p>` : ''}
+        <p style="margin:.6rem 0 0;font-size:.8rem;color:var(--muted)">${r.backend === 'ollama' ? 'Answered by your local model — the message stayed on your device.' : 'Answered by Anthropic (' + escapeHtml(r.model) + ') using your key.'}</p>`;
+    } catch (err) {
+      const hint = aiBackend.value === 'ollama'
+        ? ' Make sure Ollama is running (ollama.com) and a model is pulled, e.g. "ollama pull llama3.2".'
+        : '';
+      aiResult.textContent = 'Could not get an AI opinion: ' + err.message + hint;
+    } finally {
+      aiBtn.disabled = false;
+    }
   });
 </script>
 </body>

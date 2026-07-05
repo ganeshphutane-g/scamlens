@@ -2,8 +2,8 @@
 
 ScamLens is a security tool, so its own integrity matters. Two guarantees are load-bearing and must never regress:
 
-1. **It makes zero network calls.** Nothing you paste is ever transmitted. The detection engine (`src/`) has no `fetch`, no telemetry, and no external resource loads; the web page is fully self-contained and the optional local server (`bin/serve.js`) binds to `127.0.0.1` only.
-2. **It has zero runtime dependencies.** The whole engine is auditable in one sitting, with no third-party package that could be compromised.
+1. **The scam check makes zero network calls.** Nothing you paste is transmitted by the detection engine. `src/engine.js`, `src/urls.js`, and everything in `src/data/` have no `fetch`, no telemetry, and no external resource loads; the web page is fully self-contained and the optional local server (`bin/serve.js`) binds to `127.0.0.1` only. The **one** exception is `src/ai.js` — the *opt-in* AI second opinion — which is never invoked unless the user explicitly turns it on and chooses a backend. Even then, the local-Ollama option keeps the message on the user's machine; only the "Anthropic API" backend sends it off-device, after an explicit warning.
+2. **It has zero runtime dependencies.** The whole engine is auditable in one sitting, with no third-party package that could be compromised. `src/ai.js` speaks raw HTTP via the built-in `fetch`, not an SDK, precisely to keep this true.
 
 ## Reporting a vulnerability
 

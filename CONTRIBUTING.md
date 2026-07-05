@@ -4,8 +4,8 @@ Thanks for considering it. This project exists to protect people, so the bar for
 
 ## Ground rules
 
-1. **Zero network calls, ever.** Nothing in `src/`, `bin/`, or `web/` may perform a network request of any kind. This is the entire trust model of the tool.
-2. **Zero runtime dependencies.** `package.json`'s `dependencies` must stay empty. Anyone should be able to read the whole engine in one sitting.
+1. **The scam check makes zero network calls.** Nothing in the detection engine (`src/engine.js`, `src/urls.js`, `src/data/`), `bin/serve.js`, or `web/`'s scam-check path may perform a network request. This is the trust model of the tool. The single exception is `src/ai.js` — the opt-in AI second opinion — which only runs when the user explicitly enables it and chooses a backend. Do not add network calls anywhere else.
+2. **Zero runtime dependencies.** `package.json`'s `dependencies` must stay empty. Anyone should be able to read the whole engine in one sitting. (`src/ai.js` uses the built-in `fetch`, not an SDK, to keep this true.)
 3. **Every new detection pattern needs a test.** Add your case to `tests/corpus.test.js` (or `tests/urls.test.js` for URL-specific logic) in the same PR.
 4. **Every change must keep `npm test` green**, including the existing scam/legit corpus — a change that "improves" detection by breaking a legitimate-message test is not an improvement.
 

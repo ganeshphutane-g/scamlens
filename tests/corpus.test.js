@@ -36,7 +36,22 @@ const SCAMS = [
   ['Hinglish bank OTP scam', 'Aapka SBI khata band ho jayega. Turant KYC update karo aur apna OTP batao warna account block ho jayega.'],
   ['Hinglish digital-arrest scam', 'Main CBI se bol raha hoon. Aapka Aadhaar money laundering case me hai. Aap digital arrest me ho. Kisi ko mat batao. Turant 50000 rupaye bhejo warna giraftar kar lenge.'],
   ['Hinglish lottery scam', 'Badhai ho! Aap KBC lottery jeet gaye 25 lakh. Inaam pane ke liye processing fees bhejo turant.'],
-  ['Devanagari lottery scam', 'बधाई हो! आपने 25 लाख की लॉटरी जीती है। इनाम पाने के लिए तुरंत प्रोसेसिंग फीस भेजो।']
+  ['Devanagari lottery scam', 'बधाई हो! आपने 25 लाख की लॉटरी जीती है। इनाम पाने के लिए तुरंत प्रोसेसिंग फीस भेजो।'],
+  ['multiline scam (newline between cue phrases)', 'Your Geek Squad subscription has been renewed for $499.99.\nIf you did not authorize this charge, call our billing department to get a refund.'],
+  ['sextortion blackmail', 'I recorded you through your webcam on an adult site. Pay me or I send the video to all your contacts. Do not tell anyone.'],
+  ['fake bank fraud-alert callback', 'Fraud alert: a suspicious transaction of $499 is pending on your account. If you did not authorize it, call us immediately to reverse it. Act now to avoid losing your funds.'],
+  ['Hinglish tech-support scam', 'Aapka system infected ho gaya hai. Turant Microsoft technician se baat kare aur is number par call kare.'],
+  ['brand-in-subdomain multi-char homoglyph', 'Your account will be suspended. Restore access now: http://vvhatsapp.secure-login.com/verify']
+];
+
+// Single-signal scam scripts: their pattern fires but by design no single
+// signal below weight 32 can reach "high" alone — these must be at least
+// "medium" (never a false "safe"), and never regress back to score 0.
+const MEDIUM_OR_ABOVE = [
+  ['overpayment / fake-check scam', 'I want to buy your item. I will send a cashier check for more than the price. Please send the extra back to my shipping agent via Zelle.'],
+  ['rental-deposit scam', 'The apartment is available but I am out of the country. Send the security deposit and first month rent by Zelle and I will ship you the keys.'],
+  ['insurance payout advance-fee', 'Your insurance payout of Rs 5,00,000 is ready. Deposit the GST charge of Rs 25,000 to release it.'],
+  ['multiline toll notice', 'Unpaid toll notice.\nPay now or face a fine and license suspension.']
 ];
 
 const LEGIT = [
@@ -68,6 +83,16 @@ for (const [name, text] of SCAMS) {
     assert.ok(
       r.level === 'high' || r.level === 'critical',
       `expected high/critical, got ${r.level} (${r.score}) — signals: ${r.signals.map(s => s.id).join(', ') || 'none'}`
+    );
+  });
+}
+
+for (const [name, text] of MEDIUM_OR_ABOVE) {
+  test(`scam flagged at least medium: ${name}`, () => {
+    const r = analyze(text);
+    assert.ok(
+      r.level !== 'low',
+      `expected medium or above, got ${r.level} (${r.score}) — signals: ${r.signals.map(s => s.id).join(', ') || 'none'}`
     );
   });
 }

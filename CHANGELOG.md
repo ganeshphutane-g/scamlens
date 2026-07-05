@@ -7,6 +7,24 @@ additions are minor bumps; engine/API changes are major.
 ## [Unreleased]
 
 ### Added
+- **Optional AI second opinion** (`src/ai.js`): after the always-offline rule
+  check, users can opt in to an LLM judgment for novel scams — via a **local
+  Ollama** model (private, message stays on device) or the **Anthropic API**
+  with their own key (message sent off-device, only after an explicit
+  warning). Available in the web UI and via the CLI `--ai` flag. The model is
+  constrained by JSON-schema structured output, told never to declare a
+  message definitively "safe," and instructed to treat the message as
+  untrusted data. Zero new dependencies (raw `fetch`).
+- Five more scam families with regression tests: overpayment / fake-check,
+  sextortion / webcam blackmail, fake bank fraud-alert callbacks,
+  rental-deposit scams, and pay-a-fee-to-release payout/insurance advance-fee
+  scams; plus a Hinglish/Devanagari tech-support alternate.
+- Multi-character homoglyph detection now also catches brand names hidden in
+  **subdomains** (`vvhatsapp.secure-login.com`).
+- Multi-line messages are normalized before matching, so a real scam SMS with
+  line breaks between cue phrases is no longer scored a false "safe."
+- WCAG-AA color fixes: darker primary button, stronger control borders,
+  brighter critical-risk badge text.
 - **Hindi / Hinglish and Devanagari detection** across seven scam categories
   (credential requests, payment demands, arrest threats, official-notice
   impersonation, prizes, secrecy demands, urgency) — the most common
