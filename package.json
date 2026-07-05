@@ -5,7 +5,7 @@
   "type": "module",
   "bin": { "scamlens": "bin/cli.js" },
   "scripts": {
-    "test": "node --test 'tests/**/*.test.js'",
+    "test": "node --test",
     "start": "node bin/cli.js",
     "web": "node bin/serve.js"
   },
